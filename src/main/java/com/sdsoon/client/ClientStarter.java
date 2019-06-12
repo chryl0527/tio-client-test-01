@@ -49,14 +49,14 @@ public class ClientStarter {
 
 
         //验证server主动发送给client
-//        binding();
+        binding();
     }
 
 
     public static void binding() throws UnsupportedEncodingException {
-        RequestPacket requestPacket = new RequestPacket();
+//        RequestPacket requestPacket = new RequestPacket();
 
-        requestPacket.setBody("FE0A4A4E3132715067734D34374550534976099CFE".getBytes(RequestPacket.CHARSET));
+//        requestPacket.setBody("FE0A4A4E3132715067734D34374550534976099CFE".getBytes(RequestPacket.CHARSET));
 
         Tio.bindUser(clientChannelContext, "client-01");//client先绑定userId
     }

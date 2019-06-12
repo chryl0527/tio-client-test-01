@@ -1,16 +1,13 @@
 package com.sdsoon;
 
-import com.alibaba.fastjson.JSON;
+import com.sdsoon.client.ClientHandler;
 import com.sdsoon.client.RequestPacket;
-import com.sdsoon.client.TestBean;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.tio.core.Tio;
 
 import java.io.UnsupportedEncodingException;
-import java.util.UUID;
 
 import static com.sdsoon.client.ClientStarter.clientChannelContext;
 
@@ -21,33 +18,67 @@ import static com.sdsoon.client.ClientStarter.clientChannelContext;
 @RequestMapping("/tio")
 public class Controller {
 
-    @RequestMapping(value = {"/{comm}", ""}, method = RequestMethod.GET)
-    public String show(@PathVariable(value = "comm", required = false) String comm) throws UnsupportedEncodingException {
+    //心跳
+    @RequestMapping(value = {"/heart"}, method = RequestMethod.GET)
+    public String show2() throws UnsupportedEncodingException {
+        RequestPacket requestPacket = new RequestPacket();
+        String ss = "ABBA00000010506A1C00500300000118013701502493".trim();
+        byte[] bytes = ClientHandler.hexToByteArray(ss);
+        requestPacket.setBody(bytes);
+
+        Tio.bindUser(clientChannelContext, "client-01");
+        Tio.send(clientChannelContext, requestPacket);
+        return "suc:heart";
+    }
+
+    //时间
+    /**
+     * @return
+     * @throws UnsupportedEncodingException
+     */
+    @RequestMapping(value = {"/time"}, method = RequestMethod.GET)
+    public String show1() throws UnsupportedEncodingException {
         RequestPacket requestPacket = new RequestPacket();
 
-        if (comm == null) {
-
-            requestPacket.setBody("FE0A4A4E3132715067734D34374550534976099CFE".getBytes(RequestPacket.CHARSET));
-
-
-            //需要在channel中发送 数据信息//下面可以
-            //            Tio.sendToUser(clientChannelContext.getGroupContext(), "tio-client-01",requestPacket);
+        String ss = "97790000000F501000000004082019061109280702";
+        byte[] bytes = ClientHandler.hexToByteArray(ss);
+        requestPacket.setBody(bytes);
 
 
 //            Tio.bindUser(clientChannelContext, "tio-client-01");
-            Tio.bindUser(clientChannelContext, "client-01");
-            Tio.send(clientChannelContext, requestPacket);
-        } else {
-            TestBean testBean = new TestBean();
-            testBean.setComm(comm);
-            testBean.setId(UUID.randomUUID().toString());
-            String s = JSON.toJSONString(testBean);
-            requestPacket.setBody(s.getBytes(RequestPacket.CHARSET));
-            Tio.send(clientChannelContext, requestPacket);
-        }
+        Tio.bindUser(clientChannelContext, "client-01");
+        Tio.send(clientChannelContext, requestPacket);
+        return "suc:time";
 
-        return "suc";
     }
+
+    //###############控制
+    //灯全开
+    @RequestMapping(value = {"/1234"}, method = RequestMethod.GET)
+    public String show5() throws UnsupportedEncodingException {
+        RequestPacket requestPacket = new RequestPacket();
+        String ss = "977900000009500F00100010020F00";
+        byte[] bytes = ClientHandler.hexToByteArray(ss);
+        requestPacket.setBody(bytes);
+        Tio.bindUser(clientChannelContext, "client-01");
+        Tio.send(clientChannelContext, requestPacket);
+        return "suc:on";
+    }
+
+    //###############关闭
+    @RequestMapping(value = {"/12", ""}, method = RequestMethod.GET)
+    public String show3() throws UnsupportedEncodingException {
+        RequestPacket requestPacket = new RequestPacket();
+        String ss = "977900000009500F00100010020000";
+        byte[] bytes = ClientHandler.hexToByteArray(ss);
+        requestPacket.setBody(bytes);
+        Tio.bindUser(clientChannelContext, "client-01");
+        Tio.send(clientChannelContext, requestPacket);
+        return "suc:1-";
+    }
+
+
+    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     /**
      * 当 ByteBuffer.remaining()  小于要读取或写入的长度时，再执行读取或写入操作都会产生异常；
@@ -60,22 +91,29 @@ public class Controller {
      *
      * @param args
      */
+
     public static void main(String args[]) {
-        String s = "FE0A4A4E3132715067734D34374550534976099CFE";
-        byte[] bytes = s.getBytes();
+        String ss = "ABBA00000010506A1C00500300000118013701502493";
+        byte[] bytes = ss.trim().replace(" ", "").getBytes();
+//        System.out.println(bytes);
 
-        for (byte b : bytes) {
-            System.out.print(b);
+        //1
+        String s = ClientHandler.byte2Hex(bytes);
+//        System.out.println(s);
 
+
+        //2
+//        byte b = ClientHandler.hexToByte(ss);
+//        System.out.println(b);
+
+        //3
+        byte[] bytes1 = ClientHandler.hexToByteArray(ss);
+        for (byte b : bytes1) {
+            System.out.print(b + " ");
         }
 
-//        ByteBuffer byteBuffer = ByteBuffer.allocate(42 * 2);
-        /*int remaining = byteBuffer.remaining();
-        if (remaining >= s.length()) {
-            //就不会出现:Exception in thread "main" java.nio.BufferOverflowException
-        }*/
-//        byteBuffer.put(bytes);//
-//        byteBuffer.putInt(s.length());
-//        System.out.println(bytes);
+        System.out.println(bytes1);
     }
+
+
 }
